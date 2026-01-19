@@ -4,6 +4,9 @@
 INDEX=${INDEX:-1}
 export INDEX
 
+# Configure Apache to listen on port 8080 instead of 80
+sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
+
 # Enable mod_dir to serve index.php as default
 a2enmod dir 2>/dev/null
 
@@ -22,6 +25,8 @@ mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 service mariadb start
 service apache2 start
+service nginx start
+
 mysql -u root <<EOF
 CREATE DATABASE IF NOT EXISTS wordpress;
 CREATE USER IF NOT EXISTS 'usertest'@'localhost' IDENTIFIED BY 'usertestpass';
@@ -29,4 +34,6 @@ GRANT ALL PRIVILEGES ON wordpress.* TO 'usertest'@'localhost';
 FLUSH PRIVILEGES;
 EOF
 
-tail -f /var/log/apache2/access.log
+# Keep container running and monitor logs
+tail -f /var/log/nginx/access.log /var/log/apache2/access.log 2>/dev/null &
+wait
