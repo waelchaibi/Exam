@@ -1,6 +1,7 @@
 FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV INDEX=1
 
 RUN apt update && apt install -y \
     apache2 \
@@ -27,6 +28,12 @@ RUN wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zi
     && unzip phpMyAdmin-latest-all-languages.zip \
     && mv phpMyAdmin-*-all-languages /var/www/html/phpmyadmin \
     && rm phpMyAdmin-latest-all-languages.zip
+
+# Remove the default Apache index.html
+RUN rm -f /var/www/html/index.html
+
+# Copy index.php
+COPY index.php /var/www/html/index.php
 
 RUN chown -R www-data:www-data /var/www/html
 

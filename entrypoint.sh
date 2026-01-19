@@ -1,20 +1,31 @@
 #!/bin/bash
 
-# Créer le dossier du socket MariaDB
+# Make sure INDEX environment variable is passed to Apache
+INDEX=${INDEX:-1}
+export INDEX
+
+# Enable mod_dir to serve index.php as default
+a2enmod dir 2>/dev/null
+
+# Update DirectoryIndex to include index.php
+sed -i 's/DirectoryIndex.*/DirectoryIndex index.php index.html/' /etc/apache2/mods-enabled/dir.conf
+
+# Create Apache configuration to pass the environment variable to PHP
+# Use SetEnv to set the variable with the actual value passed to the container
+cat >> /etc/apache2/apache2.conf <<EOL
+
+# Pass environment variables to CGI/PHP
+SetEnv INDEX $INDEX
+EOL
+
 mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
-
-# Démarrer MariaDB
 service mariadb start
-
-# Démarrer Apache
 service apache2 start
-
-# Créer base et utilisateur UNE SEULE FOIS
 mysql -u root <<EOF
-CREATE DATABASE IF NOT EXISTS wordpress_db;
-CREATE USER IF NOT EXISTS 'wp_user'@'localhost' IDENTIFIED BY 'wp_password';
-GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS wordpress;
+CREATE USER IF NOT EXISTS 'usertest'@'localhost' IDENTIFIED BY 'usertestpass';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'usertest'@'localhost';
 FLUSH PRIVILEGES;
 EOF
 
