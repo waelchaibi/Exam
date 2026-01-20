@@ -1,7 +1,7 @@
 FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV INDEX=1
+ENV INDEX=0
 
 RUN apt update && apt install -y \
     apache2 \
