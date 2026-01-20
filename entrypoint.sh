@@ -4,7 +4,6 @@
 INDEX=${INDEX:-1}
 export INDEX
 
-# Configure Apache to listen on port 8080 instead of 80
 sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 
 # Enable mod_dir to serve index.php as default
